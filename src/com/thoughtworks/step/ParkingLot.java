@@ -29,7 +29,7 @@ public class ParkingLot {
         return vehicles.remove(token);
     }
 
-    private boolean isCarAlreadyParked(Vehicle vehicle) {
+    protected boolean isCarAlreadyParked(Vehicle vehicle) {
         return vehicles.containsValue(vehicle);
     }
 

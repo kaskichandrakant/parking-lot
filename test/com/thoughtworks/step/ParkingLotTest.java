@@ -9,7 +9,7 @@ public class ParkingLotTest {
 
     private TestCar firstCar;
 
-    class TestCar implements Vehicle{
+    private class TestCar implements Vehicle{
         TestCar() {
         }
     }
