@@ -24,7 +24,7 @@ public class Attendant {
         throw new UnableToParkException("Parking Lots Are Full");
     }
 
-    private boolean hasAlreadyParked(Vehicle vehicle){
+    public boolean hasAlreadyParked(Vehicle vehicle){
         boolean hasParked=false;
         for (ParkingLot parkingLot : parkingLots) {
             if(parkingLot.isCarAlreadyParked(vehicle)){
@@ -32,5 +32,14 @@ public class Attendant {
             }
         }
         return hasParked;
+    }
+
+    public Vehicle checkOut(Object token) throws AlreadyCheckedOutException {
+        for (ParkingLot parkingLot : parkingLots) {
+           if(parkingLot.hasToken(token)){
+               return parkingLot.checkOut(token);
+           }
+        }
+        throw new AlreadyCheckedOutException();
     }
 }

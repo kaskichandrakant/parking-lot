@@ -33,7 +33,7 @@ public class ParkingLot {
         return vehicles.containsValue(vehicle);
     }
 
-    private boolean hasToken(Object token) {
+    protected boolean hasToken(Object token) {
         return vehicles.containsKey(token);
     }
 
