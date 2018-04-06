@@ -1,11 +1,14 @@
 package com.thoughtworks.step;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class ParkingLot {
+    private final ArrayList<Listener> listeners;
     private HashMap<Object, Vehicle> vehicles;
     private int capacity;
 
     public ParkingLot(int capacity) {
+        this.listeners = new ArrayList<>();
         this.capacity = capacity;
         this.vehicles = new HashMap();
     }
@@ -19,6 +22,9 @@ public class ParkingLot {
         }
         Object token = new Object();
         this.vehicles.putIfAbsent(token, vehicle);
+        if (isFull()) {
+            flag();
+        }
         return token;
     }
 
@@ -26,6 +32,7 @@ public class ParkingLot {
         if (!hasToken(token)) {
             throw new AlreadyCheckedOutException();
         }
+        unflag();
         return vehicles.remove(token);
     }
 
@@ -39,5 +46,29 @@ public class ParkingLot {
 
     public boolean isFull() {
         return vehicles.size() == capacity;
+    }
+
+    @Override
+    public String toString() {
+        return "ParkingLot{" +
+                "vehicles=" + vehicles +
+                ", capacity=" + capacity +
+                '}';
+    }
+
+    public void addListener(Listener listener) {
+        listeners.add(listener);
+    }
+
+    public void flag() {
+        for (Listener listener : listeners) {
+            listener.full();
+        }
+    }
+
+    public void unflag() {
+        for (Listener listener : listeners) {
+            listener.notFull();
+        }
     }
 }
