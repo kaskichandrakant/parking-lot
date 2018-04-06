@@ -32,7 +32,9 @@ public class ParkingLot {
         if (!hasToken(token)) {
             throw new AlreadyCheckedOutException();
         }
-        unflag();
+        if(isFull()){
+            unflag();
+        }
         return vehicles.remove(token);
     }
 

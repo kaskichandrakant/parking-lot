@@ -7,6 +7,9 @@ import java.util.ArrayList;
 
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class ParkingLotTest {
 
@@ -69,71 +72,23 @@ public class ParkingLotTest {
 
     @Test
     public void shouldConveyMsgFull() throws UnableToParkException {
-        ArrayList<String> message = new ArrayList<>();
-        Listener Owner = new Listener() {
-            @Override
-            public void full() {
-                message.add("Ooh!");
-            }
 
-            @Override
-            public void notFull() {
-                message.add("Great!");
-            }
-        };
-        parkingLot.addListener(Owner);
+        Listener testListener = mock(Listener.class);
+        parkingLot.addListener(testListener);
         parkingLot.park(testCar);
         parkingLot.park(new TestCar());
-        assertThat(message,hasItem("Ooh!"));
-        assertEquals(message.size(),1);
+        verify(testListener, times(1)).full();
     }
 
     @Test
-    public void shouldConveyMsgFullAndNotFull() throws UnableToParkException, AlreadyCheckedOutException {
-        ArrayList<String> message = new ArrayList<>();
-        Listener CityCouncil = new Listener() {
-            @Override
-            public void full() {
-                message.add("Ack");
-            }
-
-            @Override
-            public void notFull() {
-                message.add("Ack");
-            }
-        };
-        parkingLot.addListener(CityCouncil);
+    public void shouldNotCallListenerWhenCheckingOutFromFullLot() throws UnableToParkException, AlreadyCheckedOutException {
+        Listener testListener = mock(Listener.class);
+        parkingLot.addListener(testListener);
         Object token = parkingLot.park(testCar);
         parkingLot.park(new TestCar());
         parkingLot.checkOut(token);
-        assertThat(message,hasItem("Ack"));
-        assertEquals(message.size(),2);
+        verify(testListener, times(1)).notFull();
+        parkingLot.park(new TestCar());
+        verify(testListener, times(2)).full();
     }
-//    @Test
-//    public void ShouldAssertThatCarIsInParkingLot(){
-//        Vehicle swift = new Vehicle();
-//        Object token = parkingLot.park(swift);
-//        Object token1 =new Object(1);
-//        assertEquals(token,token1);
-//        assertTrue(token.equals(token1));
-//        assertEquals(token.hashCode(),token1.hashCode());
-//    }
-//
-//    @Test
-//    public void shouldReturnParkedCarWhileCheckout() {
-//        Vehicle swift = new Vehicle();
-//        Object token = parkingLot.park(swift);
-//        Object mySwift = parkingLot.checkOut(token);
-//        assertEquals(swift,mySwift);
-//    }
-//
-//    @Test
-//    public void shouldReturnNullForUsedTokenToCheckout() {
-//        Vehicle swift = new Vehicle();
-//        Object swiftToken = parkingLot.park(swift);
-//        Object mySwift = parkingLot.checkOut(swiftToken);
-//        assertNull(parkingLot.checkOut(swiftToken));
-//    }
-
-
 }
