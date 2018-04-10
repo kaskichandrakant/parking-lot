@@ -1,16 +1,20 @@
 package com.thoughtworks.step;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class Attendant implements Listener {
     private ArrayList<ParkingLot> parkingLots;
+    private ArrayList<ParkingLot> sortedLots;
 
     public Attendant() {
         this.parkingLots = new ArrayList<>();
+        this.sortedLots = new ArrayList<>();
     }
 
     public void add(ParkingLot parkingLot) {
-        parkingLot.addListener(new Attendant());
         parkingLots.add(parkingLot);
+        Collections.sort(parkingLots);
+
     }
 
 
@@ -23,7 +27,6 @@ public class Attendant implements Listener {
             if(!parkingLot.isFull()){
                 return parkingLot.park(vehicle);
             }
-            parkingLot.flag();
         }
         throw new UnableToParkException("Parking Lots Are Full");
     }
@@ -43,7 +46,6 @@ public class Attendant implements Listener {
     public Vehicle checkOut(Object token) throws AlreadyCheckedOutException {
         for (ParkingLot parkingLot : parkingLots) {
            if(parkingLot.hasToken(token)){
-               parkingLot.unflag();
                return parkingLot.checkOut(token);
            }
         }
@@ -59,7 +61,4 @@ public class Attendant implements Listener {
     public void notFull() {
         System.out.println("Attendant : Not Full!");
     }
-//    private void addAssistantTo(Assistant ){
-//
-//    }
 }

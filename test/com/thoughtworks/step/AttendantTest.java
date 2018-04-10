@@ -12,7 +12,7 @@ public class AttendantTest {
 
     private Attendant attendant;
     private TestCar testCar;
-    private Assistant assistant;
+    private ParkingLot parkingLot;
 
     class TestCar implements Vehicle{
         public TestCar() {
@@ -21,7 +21,6 @@ public class AttendantTest {
 
     @Before
     public void setUp() throws Exception {
-        assistant = new Assistant();
         attendant = new Attendant();
         testCar = new TestCar();
     }
@@ -68,4 +67,13 @@ public class AttendantTest {
         assertNotNull(attendant.park(new TestCar()));
     }
 
+    @Test
+    public void shouldParkInLotWithHigherCapacity() throws UnableToParkException {
+        attendant.add(new ParkingLot(1));
+        attendant.add(new ParkingLot(3));
+        ParkingLot parkingLot = new ParkingLot(5);
+        attendant.add(parkingLot);
+        Object token = attendant.park(testCar);
+        assertTrue(parkingLot.hasToken(token));
+    }
 }

@@ -1,19 +1,20 @@
 package com.thoughtworks.step;
-import java.util.ArrayList;
+
 import java.util.HashMap;
 
-public class ParkingLot {
-    private final ArrayList<Listener> listeners;
+public class ParkingLot  implements  Comparable<ParkingLot>{
     private HashMap<Object, Vehicle> vehicles;
     private int capacity;
+    private EventDispatcher eventDispatcher;
 
     public ParkingLot(int capacity) {
-        this.listeners = new ArrayList<>();
         this.capacity = capacity;
         this.vehicles = new HashMap();
+        this.eventDispatcher =new EventDispatcher();
     }
 
     public Object park(Vehicle vehicle) throws UnableToParkException {
+
         if (isCarAlreadyParked(vehicle)) {
             throw new UnableToParkException("Vehicle Already Parked");
         }
@@ -23,7 +24,7 @@ public class ParkingLot {
         Object token = new Object();
         this.vehicles.putIfAbsent(token, vehicle);
         if (isFull()) {
-            flag();
+            eventDispatcher.announceFull();
         }
         return token;
     }
@@ -32,8 +33,8 @@ public class ParkingLot {
         if (!hasToken(token)) {
             throw new AlreadyCheckedOutException();
         }
-        if(isFull()){
-            unflag();
+        if (isFull()) {
+            eventDispatcher.announceHasSpace();
         }
         return vehicles.remove(token);
     }
@@ -57,20 +58,12 @@ public class ParkingLot {
                 ", capacity=" + capacity +
                 '}';
     }
-
-    public void addListener(Listener listener) {
-        listeners.add(listener);
+    public void addEventDispatcher(EventDispatcher eventDispatcher){
+        this.eventDispatcher=eventDispatcher;
     }
 
-    public void flag() {
-        for (Listener listener : listeners) {
-            listener.full();
-        }
-    }
-
-    public void unflag() {
-        for (Listener listener : listeners) {
-            listener.notFull();
-        }
+    @Override
+    public int compareTo(ParkingLot other) {
+        return other.capacity-this.capacity;
     }
 }
