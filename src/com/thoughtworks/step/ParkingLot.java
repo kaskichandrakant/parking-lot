@@ -2,7 +2,7 @@ package com.thoughtworks.step;
 
 import java.util.HashMap;
 
-public class ParkingLot  implements  Comparable<ParkingLot>{
+public class ParkingLot {
     private HashMap<Object, Vehicle> vehicles;
     private int capacity;
     private EventDispatcher eventDispatcher;
@@ -14,28 +14,17 @@ public class ParkingLot  implements  Comparable<ParkingLot>{
     }
 
     public Object park(Vehicle vehicle) throws UnableToParkException {
-
-        if (isCarAlreadyParked(vehicle)) {
-            throw new UnableToParkException("Vehicle Already Parked");
-        }
-        if (isFull()) {
-            throw new UnableToParkException("Parking Lot Is Full");
-        }
+        if (isCarAlreadyParked(vehicle))  throw new UnableToParkException("Vehicle Already Parked");
+        if (isFull()) throw new UnableToParkException("Parking Lot Is Full");
         Object token = new Object();
         this.vehicles.putIfAbsent(token, vehicle);
-        if (isFull()) {
-            eventDispatcher.announceFull();
-        }
+        if (isFull()) eventDispatcher.announceFull();
         return token;
     }
 
     public Vehicle checkOut(Object token) throws AlreadyCheckedOutException {
-        if (!hasToken(token)) {
-            throw new AlreadyCheckedOutException();
-        }
-        if (isFull()) {
-            eventDispatcher.announceHasSpace();
-        }
+        if (!hasToken(token))  throw new AlreadyCheckedOutException();
+        if (isFull()) eventDispatcher.announceHasSpace();
         return vehicles.remove(token);
     }
 
@@ -62,8 +51,9 @@ public class ParkingLot  implements  Comparable<ParkingLot>{
         this.eventDispatcher=eventDispatcher;
     }
 
-    @Override
-    public int compareTo(ParkingLot other) {
-        return other.capacity-this.capacity;
+    public boolean isBiggerThan(ParkingLot lot) { return capacity>lot.capacity; }
+
+    public boolean isMoreVacantThan(ParkingLot lot) {
+        return capacity-vehicles.size() > lot.capacity-lot.vehicles.size();
     }
 }

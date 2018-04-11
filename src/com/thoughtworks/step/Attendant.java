@@ -1,38 +1,39 @@
 package com.thoughtworks.step;
 import java.util.ArrayList;
-import java.util.Collections;
 
 public class Attendant implements Listener {
+    private final ArrayList<ParkingLot> availableLots;
     private ArrayList<ParkingLot> parkingLots;
-    private ArrayList<ParkingLot> sortedLots;
+    private ParkingMethodology parkingMethod;
 
-    public Attendant() {
+    public Attendant(ParkingMethodology parkingMethod) {
+        this.parkingMethod = parkingMethod;
         this.parkingLots = new ArrayList<>();
-        this.sortedLots = new ArrayList<>();
+        this.availableLots=new ArrayList<>();
+    }
+
+    public static Attendant createAttendant(ParkingMethodology parkingMethod) {
+        return new Attendant(parkingMethod);
     }
 
     public void add(ParkingLot parkingLot) {
         parkingLots.add(parkingLot);
-        Collections.sort(parkingLots);
-
+        availableLots.add(parkingLot);
     }
-
-
 
     public Object park(Vehicle vehicle) throws UnableToParkException {
-        if(hasAlreadyParked(vehicle)){
-            throw new UnableToParkException("Car Already Parked");
-        }
-        for (ParkingLot parkingLot : parkingLots) {
-            if(!parkingLot.isFull()){
-                return parkingLot.park(vehicle);
-            }
-        }
-        throw new UnableToParkException("Parking Lots Are Full");
+        if(availableLots.size()==0) throw new UnableToParkException("Parking Lots Are Full");
+
+        if(hasAlreadyParked(vehicle))throw new UnableToParkException("Car Already Parked");
+
+        ParkingLot parkingLot = parkingMethod.getLot(availableLots);
+
+        Object token = parkingLot.park(vehicle);
+
+        if(parkingLot.isFull())availableLots.remove(parkingLot);
+
+        return token;
     }
-
-
-
     private boolean hasAlreadyParked(Vehicle vehicle){
         boolean hasParked=false;
         for (ParkingLot parkingLot : parkingLots) {
@@ -46,7 +47,9 @@ public class Attendant implements Listener {
     public Vehicle checkOut(Object token) throws AlreadyCheckedOutException {
         for (ParkingLot parkingLot : parkingLots) {
            if(parkingLot.hasToken(token)){
-               return parkingLot.checkOut(token);
+               Vehicle vehicle = parkingLot.checkOut(token);
+               availableLots.add(parkingLot);
+               return  vehicle;
            }
         }
         throw new AlreadyCheckedOutException();

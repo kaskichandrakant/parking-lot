@@ -5,14 +5,12 @@ import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class AttendantTest {
 
     private Attendant attendant;
     private TestCar testCar;
-    private ParkingLot parkingLot;
 
     class TestCar implements Vehicle{
         public TestCar() {
@@ -21,7 +19,7 @@ public class AttendantTest {
 
     @Before
     public void setUp() throws Exception {
-        attendant = new Attendant();
+        attendant = Attendant.createAttendant(new ParkInFirstAvailable());
         testCar = new TestCar();
     }
 
@@ -69,11 +67,36 @@ public class AttendantTest {
 
     @Test
     public void shouldParkInLotWithHigherCapacity() throws UnableToParkException {
+        attendant=Attendant.createAttendant(new ParkInHighestCapacity());
         attendant.add(new ParkingLot(1));
         attendant.add(new ParkingLot(3));
         ParkingLot parkingLot = new ParkingLot(5);
         attendant.add(parkingLot);
         Object token = attendant.park(testCar);
+        assertTrue(parkingLot.hasToken(token));
+    }
+
+    @Test
+    public void shouldParkCarInParkingLotWithMostCapacity() throws UnableToParkException {
+        attendant=Attendant.createAttendant(new ParkInHighestCapacity());
+        attendant.add(new ParkingLot(1));
+        attendant.add(new ParkingLot(2));
+        ParkingLot parkingLot = new ParkingLot(5);
+        attendant.add(parkingLot);
+        Object token = attendant.park(testCar);
+        assertTrue(parkingLot.hasToken(token));
+    }
+
+    @Test
+    public void shouldParkInMostVacantLot() throws UnableToParkException {
+        attendant=Attendant.createAttendant(new ParkInMostVacant());
+        attendant.add(new ParkingLot(3));
+        attendant.add(new ParkingLot(1));
+        ParkingLot parkingLot = new ParkingLot(4);
+        attendant.add(parkingLot);
+        attendant.park(new TestCar());
+        attendant.park(new TestCar());
+        Object token = attendant.park(new TestCar());
         assertTrue(parkingLot.hasToken(token));
     }
 }
